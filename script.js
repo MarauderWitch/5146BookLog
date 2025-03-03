@@ -6,10 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
     //Handle Google Sign-In
     function signInWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
+        firebase.auth().signInWithPopup(provider)
             .then((result) => {
                 console.log("User signed in:", result.user);
-                // Redirect to dashboard.html upon successful login
+                //Redirect to dashboard.html upon successful login
                 window.location.href = "dashboard.html";
             })
             .catch((error) => {
