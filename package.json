@@ -1,0 +1,22 @@
+{
+    "name": "book-log",
+    "version": "1.0.0",
+    "description": "A vanilla JavaScript app for tracking books read, rating them, and organizing by genre or author.",
+    "main": "script.js",
+    "scripts": {
+      "start": "live-server",
+      "deploy": "gh-pages -d ."
+    },
+    "dependencies": {},
+    "devDependencies": {
+      "gh-pages": "^5.0.0",
+      "live-server": "^1.2.1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/MarauderWitch/5146BookLog.git"
+    },
+    "author": "Olívia Ruas Guimarães",
+    "license": "MIT"
+  }
+  
