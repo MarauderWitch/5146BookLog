@@ -30,7 +30,7 @@ if (typeof firebase === "undefined") {
                 bookRef.set({ title, author, genre, rating })
                     .then(() => {
                         console.log("Book added successfully.");
-                        fetchBooks(); // ✅ Fetch and update UI immediately after adding a book
+                        fetchBooks();
                     })
                     .catch((error) => {
                         console.error("Error adding book:", error);
