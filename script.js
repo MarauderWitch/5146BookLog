@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const bookForm = document.getElementById("book-form");
     const bookList = document.getElementById("book-list");
 
-    // Function to add a book to Firebase
+    //Add a book to Firebase
     function addBook(title, author, genre, rating) {
         const bookRef = db.ref("books").push();
         bookRef.set({
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Function to fetch books from Firebase
+    //Fetch books from Firebase
     function fetchBooks() {
         db.ref("books").on("value", (snapshot) => {
             bookList.innerHTML = "";
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Function to display a book in the UI
+    //Display a book in the UI
     function displayBook(book, bookId) {
         const bookItem = document.createElement("li");
         bookItem.innerHTML = `
@@ -36,12 +36,12 @@ document.addEventListener("DOMContentLoaded", function () {
         bookList.appendChild(bookItem);
     }
 
-    // Function to delete a book
+    //Delete a book
     function deleteBook(bookId) {
         db.ref(`books/${bookId}`).remove();
     }
 
-    // Handle form submission
+    //Form submission
     bookForm.addEventListener("submit", function (e) {
         e.preventDefault();
         const title = document.getElementById("title").value;
