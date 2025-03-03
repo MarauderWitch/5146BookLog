@@ -27,18 +27,36 @@ if (typeof firebase === "undefined") {
             // Add a book to Firebase
             function addBook(title, author, genre, rating) {
                 const bookRef = db.ref("books").push();
-                bookRef.set({ title, author, genre, rating });
+                bookRef.set({ title, author, genre, rating })
+                    .then(() => {
+                        console.log("Book added successfully.");
+                        fetchBooks(); // ✅ Fetch and update UI immediately after adding a book
+                    })
+                    .catch((error) => {
+                        console.error("Error adding book:", error);
+                    });
             }
 
             // Fetch books from Firebase
             function fetchBooks() {
                 db.ref("books").on("value", (snapshot) => {
-                    bookList.innerHTML = "";
+                    if (!snapshot.exists()) {
+                        console.log("No books found in the database.");
+                        bookList.innerHTML = "<p>No books added yet.</p>";
+                        return;
+                    }
+
+                    bookList.innerHTML = ""; // ✅ Clear list before adding new items
+
                     snapshot.forEach((childSnapshot) => {
                         const book = childSnapshot.val();
                         const bookId = childSnapshot.key;
                         displayBook(book, bookId);
                     });
+
+                    console.log("Books successfully fetched.");
+                }, (error) => {
+                    console.error("Error fetching books:", error);
                 });
             }
 
@@ -51,11 +69,19 @@ if (typeof firebase === "undefined") {
                     <button onclick="deleteBook('${bookId}')">Delete</button>
                 `;
                 bookList.appendChild(bookItem);
+                console.log("Book displayed:", book); // ✅ Debugging output
             }
 
             // Delete a book
             function deleteBook(bookId) {
-                db.ref(`books/${bookId}`).remove();
+                db.ref(`books/${bookId}`).remove()
+                    .then(() => {
+                        console.log("Book deleted successfully.");
+                        fetchBooks(); // ✅ Refresh list after deletion
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting book:", error);
+                    });
             }
 
             // Form submission
