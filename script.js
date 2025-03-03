@@ -44,15 +44,18 @@ if (typeof firebase === "undefined") {
 
             //Fetch books from DB
             function fetchBooks() {
+                console.log("Fetching books..."); 
                 db.collection("books").get().then((querySnapshot) => {
-                    //bookList.innerHTML = "";
+                    
                     if (querySnapshot.empty) {
                         bookList.innerHTML = "<p>No books added yet.</p>";
+                        console.log("⚠ No books in database.");
                         return;
                     }
                     querySnapshot.forEach((doc) => {
                         const book = doc.data();
                         const bookId = doc.id;
+                        console.log("Found book:", book);
                         displayBook(book, bookId);
                     });
                     console.log("Books successfully fetched.");
