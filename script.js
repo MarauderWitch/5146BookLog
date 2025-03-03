@@ -1,13 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Making sure Firebase is initialized
+//Making sure Firebase is initialized
 if (typeof firebase === "undefined") {
     console.error("Firebase SDK not loaded correctly.");
 } else {
     const auth = firebase.auth();
-    const db = firebase.firestore(); // ✅ Switched to Firestore
+    const db = firebase.firestore();
 
-    // ✅ Declare sign-in function globally before DOM loads
+    //Declare sign-in function globally before DOM loads
     window.signInWithGoogle = function () {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider)
@@ -25,12 +25,12 @@ if (typeof firebase === "undefined") {
         const aiButton = document.getElementById("send-btn");
         const chatHistory = document.getElementById("chat-history");
 
-        // ✅ If on `dashboard.html`, initialize book-related logic
+        //If on `dashboard.html`, initialize book logic
         if (document.getElementById("book-form")) {
             const bookForm = document.getElementById("book-form");
             const bookList = document.getElementById("book-list");
 
-            // ✅ Add a book to Firestore
+            //Add a book to DB
             function addBook(title, author, genre, rating) {
                 db.collection("books").add({ title, author, genre, rating })
                     .then(() => {
@@ -42,10 +42,10 @@ if (typeof firebase === "undefined") {
                     });
             }
 
-            // ✅ Fetch books from Firestore
+            //Fetch books from DB
             function fetchBooks() {
                 db.collection("books").get().then((querySnapshot) => {
-                    bookList.innerHTML = "";
+                    //bookList.innerHTML = "";
                     if (querySnapshot.empty) {
                         bookList.innerHTML = "<p>No books added yet.</p>";
                         return;
@@ -61,7 +61,7 @@ if (typeof firebase === "undefined") {
                 });
             }
 
-            // ✅ Delete a book from Firestore
+            //Delete a book from DB
             function deleteBook(bookId) {
                 db.collection("books").doc(bookId).delete()
                     .then(() => {
@@ -73,7 +73,7 @@ if (typeof firebase === "undefined") {
                     });
             }
 
-            // ✅ Display a book in the UI
+            //Display a book in the UI
             function displayBook(book, bookId) {
                 const bookItem = document.createElement("li");
                 bookItem.innerHTML = `
@@ -102,11 +102,11 @@ if (typeof firebase === "undefined") {
                         }
                     }
     
-                    aiInput.value = ""; // Clear input field after submission
+                    aiInput.value = "";
                 });
             }
 
-            // ✅ Ensure API Key is fetched before using Generative AI
+            //Making sure API Key is fetched before using AI
             async function getApiKey() {
                 let snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
                 apiKey = snapshot.data().key;
@@ -140,7 +140,7 @@ if (typeof firebase === "undefined") {
                 return false;
             }
 
-            // ✅ Form submission
+            //Form submission
             bookForm.addEventListener("submit", function (e) {
                 e.preventDefault();
                 const title = document.getElementById("title").value;
@@ -151,7 +151,7 @@ if (typeof firebase === "undefined") {
                 bookForm.reset();
             });
 
-            // ✅ Fetch books on load
+            //Fetch books on load
             fetchBooks();
         }
     });
