@@ -1,3 +1,5 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 //Making sure Firebase is initialised
 if (typeof firebase === "undefined") {
     console.error("Firebase SDK not loaded correctly.");
@@ -83,6 +85,74 @@ if (typeof firebase === "undefined") {
                         console.error("Error deleting book:", error);
                     });
             }
+
+            //Call in the event listener for page load
+            async function getApiKey() {
+                let snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+                apiKey =  snapshot.data().key;
+                genAI = new GoogleGenerativeAI(apiKey);
+                model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            }
+            
+            async function askChatBot(request) {
+                return await model.generateContent(request);
+            }
+
+            function appendMessage(message) {
+                let history = document.createElement("div");
+                history.textContent = message;
+                history.className = 'history';
+                chatHistory.appendChild(history);
+                aiInput.value = "";
+            }
+
+            function ruleChatBot(request) {
+                request = request.toLowerCase().trim();
+                
+                if (request.startsWith("add")) {
+                  let bookName = request.replace("add", "").trim();
+                  if (bookName) {
+                    appendMessage(`To add the book "${bookName}", please enter its title, author, genre, and rating in the provided fields, then click the 'Add Book' button.`);
+                  } else {
+                    appendMessage("Please specify the book title after 'Add'.");
+                  }
+                  return true;
+                }
+                
+                if (request.startsWith("delete")) {
+                  let bookName = request.replace("delete", "").trim();
+                  if (bookName) {
+                    appendMessage(`To delete the book "${bookName}", find it in your book list and click the 'Delete' button.`);
+                  } else {
+                    appendMessage("Please specify the book title after 'Delete'.");
+                  }
+                  return true;
+                }
+                
+                if (request.startsWith("edit")) {
+                  let bookName = request.replace("edit", "").trim();
+                  if (bookName) {
+                    appendMessage(`To edit the book "${bookName}", find it in your book list and click the 'Edit' button, then update the details as needed.`);
+                  } else {
+                    appendMessage("Please specify the book title after 'Edit'.");
+                  }
+                  return true;
+                }
+                
+                appendMessage("I'm sorry, I didn't understand that command. Try using 'Add [book title]', 'Delete [book title]', or 'Edit [book title]'.");
+                return false;
+              }
+
+            aiButton.addEventListener('click', async () => {
+              let prompt = aiInput.value.trim().toLowerCase();
+                if(prompt) {
+                  if(!ruleChatBot(prompt)){
+                    askChatBot(prompt);
+                  }
+                } else {
+                  appendMessage("Please enter a prompt")
+                }  
+            });              
 
             // Form submission
             bookForm.addEventListener("submit", function (e) {
