@@ -3,25 +3,21 @@ if (typeof firebase === "undefined") {
     console.error("Firebase SDK not loaded correctly.");
 } else {
     const auth = firebase.auth();
-    const db = firebase.database(); // ✅ Define Firebase Database
+    const db = firebase.database();
 
     // ✅ Declare sign-in function globally before DOM loads
-    function signInWithGoogle() {
+    window.signInWithGoogle = function () {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider)
             .then((result) => {
                 console.log("User signed in:", result.user);
-                window.location.href = "dashboard.html"; // ✅ Redirect on success
+                window.location.href = "dashboard.html";
             })
             .catch((error) => {
                 console.error("Error during sign-in:", error.message);
             });
-    }
+    };
 
-    // ✅ Make function globally accessible for `index.html`
-    window.signInWithGoogle = signInWithGoogle;
-
-    // ✅ Wait for DOM to load
     document.addEventListener("DOMContentLoaded", () => {
         // ✅ If on `dashboard.html`, initialize book-related logic
         if (document.getElementById("book-form")) {
