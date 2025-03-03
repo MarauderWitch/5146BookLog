@@ -9,7 +9,7 @@
     <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script defer src="firebaseConfig.js"></script>
-    <script defer src="auth.js"></script>
+    <script defer src="script.js"></script>
 </head>
 <body>
     <header>
@@ -26,5 +26,12 @@
     <footer>
         <p>&copy; 2025 Book Log by Olívia Ruas Guimarães</p>
     </footer>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const googleLoginBtn = document.getElementById("google-login");
+            googleLoginBtn.addEventListener("click", signInWithGoogle);
+        });
+    </script>
 </body>
 </html>

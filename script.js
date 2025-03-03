@@ -1,6 +1,21 @@
 document.addEventListener("DOMContentLoaded", function () {
     const bookForm = document.getElementById("book-form");
     const bookList = document.getElementById("book-list");
+    const auth = firebase.auth();
+
+    //Handle Google Sign-In
+    function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                console.log("User signed in:", result.user);
+                // Redirect to dashboard.html upon successful login
+                window.location.href = "dashboard.html";
+            })
+            .catch((error) => {
+                console.error("Error during sign-in:", error.message);
+            });
+    }
 
     //Add a book to Firebase
     function addBook(title, author, genre, rating) {
