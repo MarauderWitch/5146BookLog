@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-//Making sure Firebase is initialised
+// Making sure Firebase is initialized
 if (typeof firebase === "undefined") {
     console.error("Firebase SDK not loaded correctly.");
 } else {
@@ -21,6 +21,10 @@ if (typeof firebase === "undefined") {
     };
 
     document.addEventListener("DOMContentLoaded", () => {
+        const aiInput = document.getElementById("chat-input");
+        const aiButton = document.getElementById("send-btn");
+        const chatHistory = document.getElementById("chat-history");
+
         // ✅ If on `dashboard.html`, initialize book-related logic
         if (document.getElementById("book-form")) {
             const bookForm = document.getElementById("book-form");
@@ -86,16 +90,40 @@ if (typeof firebase === "undefined") {
                     });
             }
 
-            //Call in the event listener for page load
+            if (aiInput && aiButton) {
+                aiButton.addEventListener("click", async () => {
+                    const userMessage = aiInput.value.trim();
+                    if (!userMessage) return;
+        
+                    appendMessage(`You: ${userMessage}`, "user");
+        
+                    // First, check if the chatbot has predefined rules
+                    if (!ruleChatBot(userMessage)) {
+                        // If no predefined rule matches, call the AI chatbot
+                        try {
+                            const response = await askChatBot(userMessage);
+                            appendMessage(`Chatbot: ${response}`, "bot");
+                        } catch (error) {
+                            console.error("Error with AI chatbot:", error);
+                            appendMessage("Chatbot: Sorry, I couldn't process that request.", "bot");
+                        }
+                    }
+        
+                    aiInput.value = ""; // Clear input field after submission
+                });
+            }
+
+            // ✅ Ensure API Key is fetched before using Generative AI
             async function getApiKey() {
                 let snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
-                apiKey =  snapshot.data().key;
+                apiKey = snapshot.data().key;
                 genAI = new GoogleGenerativeAI(apiKey);
                 model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             }
             
             async function askChatBot(request) {
-                return await model.generateContent(request);
+                const response = await model.generateContent(request);
+                return response.candidates[0].content.parts[0].text; // ✅ Extracts only the AI's response text
             }
 
             function appendMessage(message) {
@@ -103,56 +131,44 @@ if (typeof firebase === "undefined") {
                 history.textContent = message;
                 history.className = 'history';
                 chatHistory.appendChild(history);
-                aiInput.value = "";
             }
 
             function ruleChatBot(request) {
                 request = request.toLowerCase().trim();
                 
                 if (request.startsWith("add")) {
-                  let bookName = request.replace("add", "").trim();
-                  if (bookName) {
-                    appendMessage(`To add the book "${bookName}", please enter its title, author, genre, and rating in the provided fields, then click the 'Add Book' button.`);
-                  } else {
-                    appendMessage("Please specify the book title after 'Add'.");
-                  }
-                  return true;
+                    let bookName = request.replace("add", "").trim();
+                    if (bookName) {
+                        appendMessage(`To add the book "${bookName}", please enter its title, author, genre, and rating in the provided fields, then click the 'Add Book' button.`);
+                    } else {
+                        appendMessage("Please specify the book title after 'Add'.");
+                    }
+                    return true;
                 }
                 
                 if (request.startsWith("delete")) {
-                  let bookName = request.replace("delete", "").trim();
-                  if (bookName) {
-                    appendMessage(`To delete the book "${bookName}", find it in your book list and click the 'Delete' button.`);
-                  } else {
-                    appendMessage("Please specify the book title after 'Delete'.");
-                  }
-                  return true;
+                    let bookName = request.replace("delete", "").trim();
+                    if (bookName) {
+                        appendMessage(`To delete the book "${bookName}", find it in your book list and click the 'Delete' button.`);
+                    } else {
+                        appendMessage("Please specify the book title after 'Delete'.");
+                    }
+                    return true;
                 }
                 
                 if (request.startsWith("edit")) {
-                  let bookName = request.replace("edit", "").trim();
-                  if (bookName) {
-                    appendMessage(`To edit the book "${bookName}", find it in your book list and click the 'Edit' button, then update the details as needed.`);
-                  } else {
-                    appendMessage("Please specify the book title after 'Edit'.");
-                  }
-                  return true;
+                    let bookName = request.replace("edit", "").trim();
+                    if (bookName) {
+                        appendMessage(`To edit the book "${bookName}", find it in your book list and click the 'Edit' button, then update the details as needed.`);
+                    } else {
+                        appendMessage("Please specify the book title after 'Edit'.");
+                    }
+                    return true;
                 }
                 
                 appendMessage("I'm sorry, I didn't understand that command. Try using 'Add [book title]', 'Delete [book title]', or 'Edit [book title]'.");
                 return false;
-              }
-
-            aiButton.addEventListener('click', async () => {
-              let prompt = aiInput.value.trim().toLowerCase();
-                if(prompt) {
-                  if(!ruleChatBot(prompt)){
-                    askChatBot(prompt);
-                  }
-                } else {
-                  appendMessage("Please enter a prompt")
-                }  
-            });              
+            }
 
             // Form submission
             bookForm.addEventListener("submit", function (e) {
