@@ -1,3 +1,4 @@
+import { db, auth } from "./firebaseConfig.js";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 //Making sure Firebase is initialized
