@@ -1,4 +1,4 @@
-console.log("🚀 Script is running!");
+console.log("Script is running.");
 
 import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -14,7 +14,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential.accessToken;
             const user = result.user;
-            localStorage.setItem("email", JSON.stringify(user.email));
+            localStorage.setItem("email", JSON.stringify(user.email)); //User email in localStorage
             window.location = "dashboard.html";
         }).catch((error) => {
             const errorCode = error.code;
@@ -27,6 +27,13 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
     signInBttn.addEventListener("click", function(event) {
         signIn(auth, provider);
     });
+
+    //User Email in localStorage
+    const email = JSON.parse(localStorage.getItem("email"));
+
+    if(!email){
+        window.location.href = "index.html";
+    }
 
     //Logout
     const logoutButton = document.getElementById("logout");
