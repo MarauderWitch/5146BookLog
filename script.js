@@ -4,15 +4,24 @@ import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
-log.setLevel("info");
-log.info("Application started");
-console.log("Database:", db);
-console.log("Firebase Firestore:", auth);
+document.addEventListener("DOMContentLoaded", function() {
+    log.setLevel("info");
+    log.info("Application started");
+    
+    console.log("Firebase Firestore:", db, auth);
 
     //Sign-In
     const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
-    
+
+    if (signInBttn) {
+        signInBttn.addEventListener("click", function(event) {
+            signIn(auth, provider);
+        });
+    } else {
+        console.error("Sign-in button not found.");
+    }
+
     function signIn() {
         signInWithPopup(auth, provider).then((result) => {
             const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -27,14 +36,8 @@ console.log("Firebase Firestore:", auth);
             const credential = GoogleAuthProvider.credentialFromError(error);
         });
     }
-    
-    signInBttn.addEventListener("click", function(event) {
-        signIn(auth, provider);
-    });
 
     //User Email in localStorage
-    //const email = JSON.parse(localStorage.getItem("email"));
-    //Fetch email from localStorage
     const email = localStorage.getItem("email") ? JSON.parse(localStorage.getItem("email")) : null;
     console.log("Email:", email);
 
@@ -47,10 +50,14 @@ console.log("Firebase Firestore:", auth);
 
     //Logout
     const signOutBttn = document.getElementById("logout");
-    signOutBttn.addEventListener("click", function(event) {
-        localStorage.removeItem("email");
-        window.location.href = "index.html";
-    });
+    if (signOutBttn) {
+        signOutBttn.addEventListener("click", function(event) {
+            localStorage.removeItem("email");
+            window.location.href = "index.html";
+        });
+    } else {
+        console.error("Logout button not found.");
+    }
 
     //Book List
     console.log("Checking for book-form:", document.getElementById("book-form"));
@@ -68,7 +75,7 @@ console.log("Firebase Firestore:", auth);
                     console.error("No user signed in. Cannot add book.");
                     return;
                 }
-        
+
                 await addDoc(collection(db, "books"), {
                     title,
                     author,
@@ -76,13 +83,13 @@ console.log("Firebase Firestore:", auth);
                     rating,
                     email: user.email, //stores the book under the user's email
                 });
-        
+
                 console.log(`Book "${title}" added successfully by ${user.email}.`);
                 displayBooks();
             } catch (error) {
                 console.error("Error adding book:", error);
             }
-        }                        
+        }
 
         async function displayBooks() {
             console.log("Fetching books...");
@@ -123,7 +130,7 @@ console.log("Firebase Firestore:", auth);
                 console.error("Error fetching and displaying books:", error);
             }
         }
-        
+
         document.addEventListener("click", async (e) => {
             if (e.target.classList.contains("delete-btn")) {
                 const bookId = e.target.getAttribute("data-id");
@@ -139,35 +146,35 @@ console.log("Firebase Firestore:", auth);
 
         if (document.getElementById("book-form")) {
             console.log("Book form found. Initializing book logic...");
-        
+
             const bookForm = document.getElementById("book-form");
             const bookList = document.getElementById("book-list");
-        
+
             bookForm.addEventListener("submit", function (e) {
                 console.log("Form submit event detected.");
                 e.preventDefault();
                 console.log("Book form submitted.");
-        
+
                 const title = document.getElementById("title").value.trim();
                 const author = document.getElementById("author").value.trim();
                 const genre = document.getElementById("genre").value.trim();
                 const rating = document.getElementById("rating").value.trim();
-        
+
                 if (!title || !author || !genre || !rating) {
                     console.error("All fields must be filled.");
                     return;
                 }
-        
+
                 console.log("Form values:", { title, author, genre, rating });
-        
+
                 addBook(title, author, genre, rating);
                 bookForm.reset();
             });
-        
+
             displayBooks();
         } else {
             console.error("Book form not found.");
-        }        
+        }
     }
 
     //Chatbot Logic
@@ -235,3 +242,4 @@ console.log("Firebase Firestore:", auth);
     }
 
     initializeAI();
+});
