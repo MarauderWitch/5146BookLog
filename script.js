@@ -3,7 +3,7 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 
-//Ensure the script runs **only after the DOM is fully loaded**
+//Ensure the script runs only after the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM fully loaded. Initializing app...");
 
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         signIn(auth, provider);
     });
 
-    //Logout Button Logic
+    //Logout
     const logoutButton = document.getElementById("logout");
     if (logoutButton) {
         logoutButton.addEventListener("click", () => {
@@ -53,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         async function addBook(title, author, genre, rating) {
             try {
-                console.log("Adding book:", { title, author, genre, rating });
                 await addDoc(collection(db, "books"), { title, author, genre, rating });
                 console.log("Book added successfully.");
                 fetchBooks();
@@ -61,16 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("Error adding book:", error);
             }
         }
-
-        bookForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            const title = document.getElementById("title").value;
-            const author = document.getElementById("author").value;
-            const genre = document.getElementById("genre").value;
-            const rating = document.getElementById("rating").value;
-            addBook(title, author, genre, rating);
-            bookForm.reset();
-        });
 
         async function fetchBooks() {
             try {
@@ -116,10 +105,20 @@ document.addEventListener("DOMContentLoaded", () => {
             bookList.appendChild(bookItem);
         }
 
+        bookForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const title = document.getElementById("title").value;
+            const author = document.getElementById("author").value;
+            const genre = document.getElementById("genre").value;
+            const rating = document.getElementById("rating").value;
+            addBook(title, author, genre, rating);
+            bookForm.reset();
+        });
+
         fetchBooks();
     }
 
-    // 🔹 **Chatbot Logic**
+    //Chatbot Logic
     const aiInput = document.getElementById("chat-input");
     const aiButton = document.getElementById("send-btn");
     const chatHistory = document.getElementById("chat-history");
