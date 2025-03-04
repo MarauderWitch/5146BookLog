@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM fully loaded. Initializing app...");
 
     // 🔹 **Sign-In Button Logic**
+    const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
     function signIn() {
         signInWithPopup(auth, provider).then((result) => {
