@@ -2,12 +2,12 @@ import { db, auth } from "/firebaseConfig.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-//Making sure Firebase is initialized
-if (typeof firebase === "undefined") {
-    console.error("Firebase SDK not loaded correctly.");
-} else {
-    const provider = new GoogleAuthProvider();
-    const signInBttn = document.getElementById('signIn');
+// Debugging: Check if Firebase is properly imported
+console.log("Firebase Auth:", auth);
+console.log("Firebase Firestore:", db);
+
+const provider = new GoogleAuthProvider();
+const signInBttn = document.getElementById('signIn');
 
     function signIn() {
         signInWithPopup(auth, provider).then((result) => {
@@ -189,4 +189,3 @@ if (typeof firebase === "undefined") {
             initializeAI();
         }
     });
-}
