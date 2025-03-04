@@ -13,10 +13,21 @@ const firebaseConfig = {
     appId: "1:497963989735:web:8895451e8ffe6c446e0042"
 };
 
-//Initialize Firebase globally
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth();
-console.log("Firebase initialised successfully.");
+// Initialize Firebase
+let app, db, auth;
 
-//export { db, auth };
+try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+
+    if (app && db && auth) {
+        console.log("Firebase initialized successfully.");
+    } else {
+        console.error("Firebase components failed to initialize.");
+    }
+} catch (error) {
+    console.error("Firebase initialization error:", error);
+}
+
+export { db, auth };

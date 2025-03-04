@@ -15,7 +15,7 @@ const signInBttn = document.getElementById('signIn');
             const token = credential.accessToken;
             const user = result.user;
             localStorage.setItem("email", JSON.stringify(user.email));
-            window.location = "dashboard.html";
+            window.location.href = "dashboard.html";
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -24,7 +24,6 @@ const signInBttn = document.getElementById('signIn');
         });
     }
 
-    //Fix event listener to call signIn() correctly
     signInBttn.addEventListener("click", function(event) {
             signIn(auth, provider);
         });
@@ -33,8 +32,8 @@ const signInBttn = document.getElementById('signIn');
         auth.signOut()
             .then(() => {
                 console.log("User signed out.");
-                localStorage.removeItem("email"); // Clear stored email
-                window.location = "index.html"; // Redirect to sign-in page
+                localStorage.removeItem("email");
+                window.location.href = "index.html";
             })
             .catch((error) => {
                 console.error("Logout error:", error);
