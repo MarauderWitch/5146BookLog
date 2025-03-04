@@ -4,8 +4,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 
 //Ensure the script runs only after the DOM is fully loaded
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM fully loaded. Initializing app...");
+//document.addEventListener("DOMContentLoaded", () => {
+    //console.log("DOM fully loaded. Initializing app...");
 
     //Sign-In
     const provider = new GoogleAuthProvider();
@@ -183,4 +183,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     initializeAI();
-});
+//});
