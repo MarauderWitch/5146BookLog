@@ -9,27 +9,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🔹 **Sign-In Button Logic**
     const signInBttn = document.getElementById("signIn");
-    if (signInBttn) {
-        const provider = new GoogleAuthProvider();
-        signInBttn.addEventListener("click", () => {
-            signInWithPopup(auth, provider).then((result) => {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential.accessToken;
-                const user = result.user;
-                localStorage.setItem("email", JSON.stringify(user.email));
-                window.location = "dashboard.html";
-            }).catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                const email = error.customData.email;
-                const credential = GoogleAuthProvider.credentialFromError(error);
-                console.error(`Sign-in error [${error.code}]: ${error.message}`);
-                alert(`Google Sign-In Error: ${error.message}`);
-            });
+    function signIn() {
+        signInWithPopup(auth, provider).then((result) => {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            const user = result.user;
+            localStorage.setItem("email", JSON.stringify(user.email));
+            window.location = "dashboard.html";
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            const email = error.customData.email;
+            const credential = GoogleAuthProvider.credentialFromError(error);
         });
-    } else {
-        console.warn("⚠ signIn button not found in the DOM.");
     }
+    
+    signInBttn.addEventListener("click", function(event) {
+        signIn(auth, provider);
+    });
 
     // 🔹 **Logout Button Logic**
     const logoutButton = document.getElementById("logout");
