@@ -3,10 +3,6 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 
-//Ensure the script runs only after the DOM is fully loaded
-//document.addEventListener("DOMContentLoaded", () => {
-    //console.log("DOM fully loaded. Initializing app...");
-
     //Sign-In
     const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
@@ -72,7 +68,6 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
                     return;
                 }
 
-                //bookList.innerHTML = "";
                 querySnapshot.forEach((doc) => {
                     const book = doc.data();
                     const bookId = doc.id;
@@ -97,6 +92,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
         }
 
         function displayBook(book, bookId) {
+            console.log("Displaying book:", book);
             const bookItem = document.createElement("li");
             bookItem.innerHTML = `
                 <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
@@ -105,17 +101,31 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
             bookList.appendChild(bookItem);
         }
 
-        bookForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            const title = document.getElementById("title").value;
-            const author = document.getElementById("author").value;
-            const genre = document.getElementById("genre").value;
-            const rating = document.getElementById("rating").value;
-            addBook(title, author, genre, rating);
-            bookForm.reset();
-        });
-
-        fetchBooks();
+        if (document.getElementById("book-form")) {
+            console.log("Book form found. Initializing book logic...");
+        
+            const bookForm = document.getElementById("book-form");
+            const bookList = document.getElementById("book-list");
+        
+            bookForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                console.log("Book form submitted.");
+        
+                const title = document.getElementById("title").value;
+                const author = document.getElementById("author").value;
+                const genre = document.getElementById("genre").value;
+                const rating = document.getElementById("rating").value;
+        
+                console.log("Form values:", { title, author, genre, rating });
+        
+                addBook(title, author, genre, rating);
+                bookForm.reset();
+            });
+        
+            fetchBooks();
+        } else {
+            console.error("Book form not found.");
+        }
     }
 
     //Chatbot Logic
@@ -183,4 +193,3 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
     }
 
     initializeAI();
-//});
