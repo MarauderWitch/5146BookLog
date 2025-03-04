@@ -3,7 +3,7 @@ console.log("Script is running.");
 import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
     //Sign-In
     const provider = new GoogleAuthProvider();
@@ -43,7 +43,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "fireb
     });
 
     //Book List
-    console.log("🔎 Checking for book-form:", document.getElementById("book-form"));
+    console.log("Checking for book-form:", document.getElementById("book-form"));
 
     if (document.getElementById("book-form")) {
         console.log("Initializing Book Logic...");
@@ -64,51 +64,56 @@ import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "fireb
                     author,
                     genre,
                     rating,
-                    email: user.email, // ✅ Stores the book under the user's email
-                    timestamp: new Date(), // Optional: Allows sorting by time added
+                    email: user.email, //stores the book under the user's email
                 });
         
                 console.log(`Book "${title}" added successfully by ${user.email}.`);
-                fetchBooks();
+                displayBooks();
             } catch (error) {
                 console.error("Error adding book:", error);
             }
-        }                
+        }                        
 
-        async function fetchBooks() {
+        async function displayBooks() {
+            console.log("Fetching books...");
+
             try {
-                console.log("Fetching books...");
-        
-                const user = auth.currentUser; // Get the currently signed-in user
+                // Get only the books that belong to the signed-in user
+                const user = auth.currentUser;
                 if (!user) {
-                    console.error("No user is signed in. Cannot fetch books.");
-                    alert("You must be signed in to see your books.");
+                    console.log("No user signed in. Cannot fetch books.");
                     return;
                 }
-        
-                //Query Firestore to get only books belonging to the signed-in user
+
                 const q = query(collection(db, "books"), where("email", "==", user.email));
                 const querySnapshot = await getDocs(q);
-        
+
                 if (querySnapshot.empty) {
                     bookList.innerHTML = "<p>No books added yet.</p>";
-                    console.log("No books in database for this user.");
+                    console.log("No books found in database.");
                     return;
                 }
-        
+
                 querySnapshot.forEach((doc) => {
                     const book = doc.data();
                     const bookId = doc.id;
-                    console.log("Found book:", book);
-                    displayBooks(book, bookId);
+
+                    // Create the list item
+                    const bookItem = document.createElement("li");
+                    bookItem.id = bookId; // Assign unique ID
+                    bookItem.innerHTML = `
+                        <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
+                        <button class="delete-btn" data-id="${bookId}">Delete</button>
+                    `;
+                    bookList.appendChild(bookItem);
                 });
-        
-                console.log("Books successfully fetched.");
+
+                console.log("Books successfully displayed.");
             } catch (error) {
-                console.error("Error fetching books:", error);
+                console.error("Error fetching and displaying books:", error);
             }
         }
-
+        
         document.addEventListener("click", async (e) => {
             if (e.target.classList.contains("delete-btn")) {
                 const bookId = e.target.getAttribute("data-id");
@@ -120,48 +125,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "fireb
                     console.error("Error deleting book:", error);
                 }
             }
-        });        
-
-        async function displayBooks() {
-            console.log("Fetching books...");
-            bookList.innerHTML = ""; // Clear the existing list before rendering
-        
-            try {
-                // Get only the books that belong to the signed-in user
-                const user = auth.currentUser;
-                if (!user) {
-                    console.log("No user signed in. Cannot fetch books.");
-                    return;
-                }
-        
-                const q = query(collection(db, "books"), where("email", "==", user.email));
-                const querySnapshot = await getDocs(q);
-        
-                if (querySnapshot.empty) {
-                    bookList.innerHTML = "<p>No books added yet.</p>";
-                    console.log("No books found in database.");
-                    return;
-                }
-        
-                querySnapshot.forEach((doc) => {
-                    const book = doc.data();
-                    const bookId = doc.id;
-        
-                    // Create the list item
-                    const bookItem = document.createElement("li");
-                    bookItem.id = bookId; // Assign unique ID
-                    bookItem.innerHTML = `
-                        <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
-                        <button class="delete-btn" data-id="${bookId}">Delete</button>
-                    `;
-                    bookList.appendChild(bookItem);
-                });
-        
-                console.log("Books successfully displayed.");
-            } catch (error) {
-                console.error("Error fetching and displaying books:", error);
-            }
-        }        
+        });
 
         if (document.getElementById("book-form")) {
             console.log("Book form found. Initializing book logic...");
