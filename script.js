@@ -1,5 +1,5 @@
 import { db, auth } from "/firebase.js";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 //Debugging
