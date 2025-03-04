@@ -2,8 +2,11 @@ console.log("Script is running.");
 
 import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+
+log.setLevel("info");
 
     //Sign-In
     const provider = new GoogleAuthProvider();
