@@ -28,10 +28,26 @@ if (typeof firebase === "undefined") {
         signInBttn.addEventListener("click", signIn);
     }
 
+    function logout() {
+        auth.signOut()
+            .then(() => {
+                console.log("User signed out.");
+                localStorage.removeItem("email"); // Clear stored email
+                window.location = "index.html"; // Redirect to sign-in page
+            })
+            .catch((error) => {
+                console.error("Logout error:", error);
+            });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         const aiInput = document.getElementById("chat-input");
         const aiButton = document.getElementById("send-btn");
         const chatHistory = document.getElementById("chat-history");
+        const logoutButton = document.getElementById("logout");
+        if (logoutButton) {
+                logoutButton.addEventListener("click", logout);
+        }
 
         //If on `dashboard.html`, initialize book logic
         if (document.getElementById("book-form")) {
@@ -151,6 +167,11 @@ if (typeof firebase === "undefined") {
                 return false;
             }
 
+            async function initializeAI() {
+                await getApiKey();
+                console.log("AI initialized successfully.");
+            }
+
             //Form submission
             bookForm.addEventListener("submit", function (e) {
                 e.preventDefault();
@@ -162,8 +183,9 @@ if (typeof firebase === "undefined") {
                 bookForm.reset();
             });
 
-            //Fetch books on load
+            //Fetch books on load & Initialise AI
             fetchBooks();
+            initializeAI();
         }
     });
 }

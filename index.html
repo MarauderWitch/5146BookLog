@@ -7,18 +7,6 @@
     <title>StoryStash - Sign In</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="script.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const googleLoginBtn = document.getElementById("google-login");
-            googleLoginBtn.addEventListener("click", () => {
-                if (typeof signInWithGoogle === "function") {
-                    signInWithGoogle();
-                } else {
-                    console.error("signInWithGoogle function is not available.");
-                }
-            });
-        });
-    </script>
 </head>
 <body>
     <header>
@@ -28,7 +16,7 @@
     <main>
         <section id="login-section">
             <h2>Sign in to access your StoryStash</h2>
-            <button id="signIn">Sign in</button>
+            <button id="signIn" aria-label="Sign in with Google">Sign in</button>
         </section>
     </main>
     <footer>
