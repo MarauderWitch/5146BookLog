@@ -1,3 +1,4 @@
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,26 +7,41 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: #212529;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Layout and Container */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Aligns content towards the right */
+    padding-left: 100px; /* Push content to the right */
+    padding-right: 50px;
 }
 
+/* Header */
 header {
     text-align: center;
-    padding: 20px 0;
+    padding: 20px;
     background-color: #ffffff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     position: relative;
 }
 
-.logout-btn {
+header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #007bff;
+}
+
+header h5 {
+    margin: 5px 0;
+    font-weight: normal;
+    color: #6c757d;
+}
+
+/* Logout Button */
+#logout {
     position: absolute;
     top: 50%;
     right: 20px;
@@ -36,68 +52,161 @@ header {
     padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
-.logout-btn:hover {
+#logout:hover {
     background-color: #c82333;
 }
 
+/* Forms */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    color: #212529;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+/* Buttons */
 button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px;
+    padding: 12px;
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 button:hover {
     background-color: #0056b3;
 }
 
-footer {
-    margin-top: auto;
-    text-align: center;
-    padding: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+/* Add Book Section */
+#add-book {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin-bottom: 20px;
 }
 
-#chatbot-container {
-    width: 300px;
-    border: 1px solid 
-#ccc;
+/* Book List */
+#book-list-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+}
+
+#book-list {
+    list-style: none;
+    padding: 0;
+}
+
+#book-list li {
+    background: #e9ecef;
     padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#book-list li strong {
+    font-size: 16px;
+    color: #212529;
+}
+
+#book-list .delete-btn {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+#book-list .delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Chatbot */
+#chatbot-container {
+    width: 350px;
+    border: 2px solid #007bff;
+    padding: 15px;
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: 
-white;
-    box-shadow: 0px 4px 6px 
-rgba(0, 0, 0, 0.1);
+    background: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
 #chat-history {
-    height: 200px;
+    height: 250px;
     overflow-y: auto;
-    border-bottom: 1px solid 
-#ccc;
+    border-bottom: 2px solid #007bff;
     margin-bottom: 10px;
-    padding: 5px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
 }
 
 #chat-input {
-    width: calc(100% - 60px);
-    padding: 5px;
-    margin-right: 5px;
+    width: calc(100% - 70px);
+    padding: 10px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    font-size: 14px;
 }
 
 #send-btn {
-    padding: 5px 10px;
-    cursor: pointer;
+    background-color: #28a745;
+    padding: 10px 15px;
+    font-size: 14px;
 }
 
-.history {
-	padding-bottom: 15px;
+#send-btn:hover {
+    background-color: #218838;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #6c757d;
 }
