@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
     
-    function signIn(auth, provider) {
+    function signIn() {
         signInWithPopup(auth, provider).then((result) => {
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential.accessToken;
