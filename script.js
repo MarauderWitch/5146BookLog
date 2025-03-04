@@ -1,32 +1,43 @@
 import { db, auth } from "/firebase.js";
-import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 //Debugging
 console.log("Firebase Auth:", auth);
 console.log("Firebase Firestore:", db);
 
-const provider = new GoogleAuthProvider();
-const signInBttn = document.getElementById('signIn');
+//const provider = new GoogleAuthProvider();
+//const signInBttn = document.getElementById('signIn');
 
-    function signIn() {
-        signInWithPopup(auth, provider).then((result) => {
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
-            const user = result.user;
-            localStorage.setItem("email", JSON.stringify(user.email));
-            window.location.href = "dashboard.html";
-        }).catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            const email = error.customData.email;
-            const credential = GoogleAuthProvider.credentialFromError(error);
-        });
-    }
+    // Wait for the DOM to fully load before running the script
+    document.addEventListener("DOMContentLoaded", () => {
+        const signInBttn = document.getElementById("signIn");
 
-    signInBttn.addEventListener("click", function(event) {
-            signIn(auth, provider);
-        });
+        if (signInBttn) {
+            const provider = new GoogleAuthProvider();
+
+            signInBttn.addEventListener("click", () => {
+                signInWithPopup(auth, provider).then((result) => {
+                    const credential = GoogleAuthProvider.credentialFromResult(result);
+                    const token = credential.accessToken;
+                    const user = result.user;
+                    localStorage.setItem("email", user.email);
+                    console.log(`User signed in: ${user.email}`);
+                    window.location = "dashboard.html";
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    const email = error.customData.email;
+                    const credential = GoogleAuthProvider.credentialFromError(error);
+                    console.error(`Sign-in error [${error.code}]: ${error.message}`);
+                    alert(`Google Sign-In Error: ${error.message}`);
+                });
+            });
+        } else {
+            console.error("signIn button not found in the DOM.");
+        }
+    });
 
     function logout() {
         auth.signOut()
