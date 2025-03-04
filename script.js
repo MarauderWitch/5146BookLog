@@ -1,4 +1,4 @@
-import { db, auth } from "./firebaseConfig.js";
+import { db, auth } from "/firebaseConfig.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -15,7 +15,7 @@ if (typeof firebase === "undefined") {
             const token = credential.accessToken;
             const user = result.user;
             localStorage.setItem("email", JSON.stringify(user.email));
-            window.location = "tasks.html";
+            window.location = "dashboard.html";
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -25,9 +25,9 @@ if (typeof firebase === "undefined") {
     }
 
     //Fix event listener to call signIn() correctly
-    if (signInBttn) {
-        signInBttn.addEventListener("click", signIn);
-    }
+    signInBttn.addEventListener("click", function(event) {
+            signIn(auth, provider);
+        });
 
     function logout() {
         auth.signOut()
