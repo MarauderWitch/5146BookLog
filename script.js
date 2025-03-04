@@ -1,8 +1,8 @@
-import { db, auth } from "/firebaseConfig.js";
+import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Debugging: Check if Firebase is properly imported
+//Debugging
 console.log("Firebase Auth:", auth);
 console.log("Firebase Firestore:", db);
 
