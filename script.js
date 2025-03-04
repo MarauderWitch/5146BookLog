@@ -1,5 +1,5 @@
 import { db, auth } from "/firebase.js";
-import { signInWithPopup, GoogleAuthProvider, } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
@@ -29,9 +29,13 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    signInBttn.addEventListener("click", function(event) {
-        signIn(auth, provider);
-    });
+    if (signInBttn) {
+        signInBttn.addEventListener("click", function(event) {
+            signIn(auth, provider);
+        });
+    } else {
+        console.error("Sign-in button not found.");
+    }
 
     //User Email in localStorage
     const email = localStorage.getItem("email") ? JSON.parse(localStorage.getItem("email")) : null;
