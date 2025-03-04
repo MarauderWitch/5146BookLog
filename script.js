@@ -14,14 +14,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
 
-    if (signInBttn) {
-        signInBttn.addEventListener("click", function(event) {
-            signIn(auth, provider);
-        });
-    } else {
-        console.error("Sign-in button not found.");
-    }
-
     function signIn() {
         signInWithPopup(auth, provider).then((result) => {
             const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -35,6 +27,14 @@ document.addEventListener("DOMContentLoaded", function() {
             const email = error.customData.email;
             const credential = GoogleAuthProvider.credentialFromError(error);
         });
+    }
+
+    if (signInBttn) {
+        signInBttn.addEventListener("click", function(event) {
+            signIn(auth, provider);
+        });
+    } else {
+        console.error("Sign-in button not found.");
     }
 
     //User Email in localStorage
