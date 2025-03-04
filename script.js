@@ -1,5 +1,5 @@
 import { db, auth } from "/firebase.js";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
@@ -69,67 +69,69 @@ document.addEventListener("DOMContentLoaded", function() {
         const bookList = document.getElementById("book-list");
 
         async function addBook(title, author, genre, rating) {
-            try {
-                const user = auth.currentUser;
+            auth.onAuthStateChanged(async (user) => {  //Wait for Firebase Auth to detect the user
                 if (!user) {
                     console.error("No user signed in. Cannot add book.");
                     return;
                 }
-
-                await addDoc(collection(db, "books"), {
-                    title,
-                    author,
-                    genre,
-                    rating,
-                    email: user.email, //stores the book under the user's email
-                });
-
-                console.log(`Book "${title}" added successfully by ${user.email}.`);
-                displayBooks();
-            } catch (error) {
-                console.error("Error adding book:", error);
-            }
-        }
+        
+                try {
+                    await addDoc(collection(db, "books"), {
+                        title,
+                        author,
+                        genre,
+                        rating,
+                        email: user.email
+                    });
+        
+                    console.log(`Book "${title}" added successfully by ${user.email}.`);
+                    displayBooks(); // ✅ Update UI after adding
+                } catch (error) {
+                    console.error("Error adding book:", error);
+                }
+            });
+        }        
 
         async function displayBooks() {
             console.log("Fetching books...");
-
-            try {
-                // Get only the books that belong to the signed-in user
-                const user = auth.currentUser;
+        
+            auth.onAuthStateChanged(async (user) => {  //Wait for Firebase Auth to detect the user
                 if (!user) {
                     console.log("No user signed in. Cannot fetch books.");
                     return;
                 }
-
-                const q = query(collection(db, "books"), where("email", "==", user.email));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    bookList.innerHTML = "<p>No books added yet.</p>";
-                    console.log("No books found in database.");
-                    return;
+        
+                try {
+                    const q = query(collection(db, "books"), where("email", "==", user.email));
+                    const querySnapshot = await getDocs(q);
+        
+                    bookList.innerHTML = ""; // Clear previous book list
+        
+                    if (querySnapshot.empty) {
+                        bookList.innerHTML = "<p>No books added yet.</p>";
+                        console.log("No books found in database.");
+                        return;
+                    }
+        
+                    querySnapshot.forEach((doc) => {
+                        const book = doc.data();
+                        const bookId = doc.id;
+        
+                        const bookItem = document.createElement("li");
+                        bookItem.id = bookId;
+                        bookItem.innerHTML = `
+                            <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
+                            <button class="delete-btn" data-id="${bookId}">Delete</button>
+                        `;
+                        bookList.appendChild(bookItem);
+                    });
+        
+                    console.log("Books successfully displayed.");
+                } catch (error) {
+                    console.error("Error fetching and displaying books:", error);
                 }
-
-                querySnapshot.forEach((doc) => {
-                    const book = doc.data();
-                    const bookId = doc.id;
-
-                    // Create the list item
-                    const bookItem = document.createElement("li");
-                    bookItem.id = bookId; // Assign unique ID
-                    bookItem.innerHTML = `
-                        <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
-                        <button class="delete-btn" data-id="${bookId}">Delete</button>
-                    `;
-                    bookList.appendChild(bookItem);
-                });
-
-                console.log("Books successfully displayed.");
-            } catch (error) {
-                console.error("Error fetching and displaying books:", error);
-            }
-        }
+            });
+        }        
 
         document.addEventListener("click", async (e) => {
             if (e.target.classList.contains("delete-btn")) {
