@@ -1,5 +1,5 @@
 import { db, auth } from "/firebase.js";
-import { signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, } from "firebase/auth";
 import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //User Email in localStorage
     const email = localStorage.getItem("email") ? JSON.parse(localStorage.getItem("email")) : null;
-    console.log("Email: ", email);
+    console.log("Email:", email);
 
     if (!email) {
         console.warn("No email found. Redirecting to login page...");
@@ -43,15 +43,6 @@ document.addEventListener("DOMContentLoaded", function() {
             window.location.href = "index.html";
         }, 1000);
     }
-
-    //Set persistence - user stays logged in
-    setPersistence(auth, browserLocalPersistence)
-    .then(() => {
-        console.log("Authentication state persisted.");
-    })
-    .catch((error) => {
-        console.error("Error setting persistence:", error);
-    });
 
     //Logout
     const signOutBttn = document.getElementById("logout");
