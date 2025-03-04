@@ -10,33 +10,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🔹 **Sign-In Button Logic**
     const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
-
-    console.log("Sign In Button:", signInBttn);
-    if (signInBttn) {
-        signInBttn.addEventListener("click", function(event) {
-            signIn(auth, provider);
-        });
-    } else {
-        console.error("Sign In button not found!");
-    }
-    // function signIn(auth, provider) {
-    //     signInWithPopup(auth, provider).then((result) => {
-    //         const credential = GoogleAuthProvider.credentialFromResult(result);
-    //         const token = credential.accessToken;
-    //         const user = result.user;
-    //         localStorage.setItem("email", JSON.stringify(user.email));
-    //         window.location = "dashboard.html";
-    //     }).catch((error) => {
-    //         const errorCode = error.code;
-    //         const errorMessage = error.message;
-    //         const email = error.customData.email;
-    //         const credential = GoogleAuthProvider.credentialFromError(error);
-    //     });
-    // }
     
-    // signInBttn.addEventListener("click", function(event) {
-    //     signIn(auth, provider);
-    // });
+    function signIn(auth, provider) {
+        signInWithPopup(auth, provider).then((result) => {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            const user = result.user;
+            localStorage.setItem("email", JSON.stringify(user.email));
+            window.location = "dashboard.html";
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            const email = error.customData.email;
+            const credential = GoogleAuthProvider.credentialFromError(error);
+        });
+    }
+    
+    signInBttn.addEventListener("click", function(event) {
+        signIn(auth, provider);
+    });
 
     // 🔹 **Logout Button Logic**
     const logoutButton = document.getElementById("logout");
