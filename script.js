@@ -6,7 +6,8 @@ import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
-log.setLevel("Application started");
+log.setLevel("info");
+log.info("Application started");
 console.log("Database:", db);
 console.log("Firebase Firestore:", auth);
 
