@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
         
                     console.log(`Book "${title}" added successfully by ${user.email}.`);
-                    displayBooks(); // ✅ Update UI after adding
+                    displayBooks(); //Call function to update UI after adding
                 } catch (error) {
                     console.error("Error adding book:", error);
                 }
@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function() {
         async function displayBooks() {
             console.log("Fetching books...");
         
-            auth.onAuthStateChanged(async (user) => {  //Wait for Firebase Auth to detect the user
+            auth.onAuthStateChanged(async (user) => {
                 if (!user) {
                     console.log("No user signed in. Cannot fetch books.");
                     return;
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const q = query(collection(db, "books"), where("email", "==", user.email));
                     const querySnapshot = await getDocs(q);
         
-                    bookList.innerHTML = ""; // Clear previous book list
+                    bookList.innerHTML = "";
         
                     if (querySnapshot.empty) {
                         bookList.innerHTML = "<p>No books added yet.</p>";
@@ -117,10 +117,14 @@ document.addEventListener("DOMContentLoaded", function() {
                         const book = doc.data();
                         const bookId = doc.id;
         
+                        // Create the list item
                         const bookItem = document.createElement("li");
                         bookItem.id = bookId;
                         bookItem.innerHTML = `
-                            <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
+                            <strong>${book.title}</strong>
+                            by <span class="author-tag" data-author="${book.author}">${book.author}</span>
+                            <em>(<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>)</em>
+                            - Rating: ${book.rating}
                             <button class="delete-btn" data-id="${bookId}">Delete</button>
                         `;
                         bookList.appendChild(bookItem);
@@ -131,7 +135,66 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error("Error fetching and displaying books:", error);
                 }
             });
-        }        
+        }
+
+        async function filterBooksBy(field, value) {
+            console.log(`Filtering books where ${field} == ${value}`);
+
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    console.log("No user signed in. Cannot filter books.");
+                    return;
+                }
+
+                try {
+                    const q = query(collection(db, "books"), where("email", "==", user.email), where(field, "==", value));
+                    const querySnapshot = await getDocs(q);
+
+                    bookList.innerHTML = "";
+
+                    if (querySnapshot.empty) {
+                        bookList.innerHTML = `<p>No books found for ${field} "${value}".</p>`;
+                        console.log(`No books found for ${field} "${value}".`);
+                        return;
+                    }
+
+                    querySnapshot.forEach((doc) => {
+                        const book = doc.data();
+                        const bookId = doc.id;
+
+                        // Create the filtered book list
+                        const bookItem = document.createElement("li");
+                        bookItem.id = bookId;
+                        bookItem.innerHTML = `
+                            <strong>${book.title}</strong>
+                            by <span class="author-tag" data-author="${book.author}">${book.author}</span>
+                            <em>(<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>)</em>
+                            - Rating: ${book.rating}
+                            <button class="delete-btn" data-id="${bookId}">Delete</button>
+                        `;
+                        bookList.appendChild(bookItem);
+                    });
+
+                    console.log("Filtered books successfully displayed.");
+                } catch (error) {
+                    console.error("Error fetching and displaying filtered books:", error);
+                }
+            });
+        }
+
+        document.addEventListener("click", async (e) => {
+            if (e.target.classList.contains("author-tag")) {
+                const selectedAuthor = e.target.getAttribute("data-author");
+                console.log(`Filtering books by author: ${selectedAuthor}`);
+                filterBooksBy("author", selectedAuthor);
+            }
+
+            if (e.target.classList.contains("genre-tag")) {
+                const selectedGenre = e.target.getAttribute("data-genre");
+                console.log(`Filtering books by genre: ${selectedGenre}`);
+                filterBooksBy("genre", selectedGenre);
+            }
+        });        
 
         document.addEventListener("click", async (e) => {
             if (e.target.classList.contains("delete-btn")) {
@@ -139,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 try {
                     await deleteDoc(doc(db, "books", bookId));
                     console.log(`Book with ID ${bookId} deleted.`);
-                    displayBooks(); //Re-fetch and update UI after deletion
+                    displayBooks(); //Call function to update UI after deleting
                 } catch (error) {
                     console.error("Error deleting book:", error);
                 }
