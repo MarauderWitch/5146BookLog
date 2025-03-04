@@ -43,6 +43,8 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
     }
 
     //Book List
+    console.log("🔎 Checking for book-form:", document.getElementById("book-form"));
+
     if (document.getElementById("book-form")) {
         console.log("Initializing Book Logic...");
 
@@ -110,6 +112,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
             const bookList = document.getElementById("book-list");
         
             bookForm.addEventListener("submit", function (e) {
+                console.log("📌 Form submit event detected.");
                 e.preventDefault();
                 console.log("Book form submitted.");
         
