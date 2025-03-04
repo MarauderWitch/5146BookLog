@@ -5,8 +5,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 if (typeof firebase === "undefined") {
     console.error("Firebase SDK not loaded correctly.");
 } else {
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    //const auth = firebase.auth();
+    //const db = firebase.firestore();
 
     //Declare sign-in function globally before DOM loads
     window.signInWithGoogle = function () {
