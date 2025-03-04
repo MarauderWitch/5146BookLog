@@ -32,10 +32,15 @@ log.setLevel("info");
     });
 
     //User Email in localStorage
-    const email = JSON.parse(localStorage.getItem("email"));
+    //const email = JSON.parse(localStorage.getItem("email"));
+    //Fetch email from localStorage
+    const email = localStorage.getItem("email") ? JSON.parse(localStorage.getItem("email")) : null;
 
-    if(!email){
-        window.location.href = "index.html";
+    if (!email) {
+        console.warn("No email found. Redirecting to login page...");
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1000);
     }
 
     //Logout
