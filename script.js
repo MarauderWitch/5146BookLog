@@ -1,25 +1,32 @@
 import { db, auth } from "./firebaseConfig.js";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 //Making sure Firebase is initialized
 if (typeof firebase === "undefined") {
     console.error("Firebase SDK not loaded correctly.");
 } else {
-    //const auth = firebase.auth();
-    //const db = firebase.firestore();
+    const provider = new GoogleAuthProvider();
+    const signInBttn = document.getElementById('signIn');
 
-    //Declare sign-in function globally before DOM loads
-    window.signInWithGoogle = function () {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
+    function signIn() {
+        signInWithPopup(auth, provider)
             .then((result) => {
-                console.log("User signed in:", result.user);
-                window.location.href = "dashboard.html";
+                const user = result.user;
+                localStorage.setItem("email", user.email);
+                console.log(`User signed in: ${user.email}`);
+                window.location = "dashboard.html";
             })
             .catch((error) => {
-                console.error("Error during sign-in:", error.message);
+                console.error(`Sign-in error [${error.code}]: ${error.message}`);
+                alert(`Google Sign-In Error: ${error.message}`);
             });
-    };
+    }
+
+    //Fix event listener to call signIn() correctly
+    if (signInBttn) {
+        signInBttn.addEventListener("click", signIn);
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
         const aiInput = document.getElementById("chat-input");
