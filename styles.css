@@ -14,8 +14,8 @@ body {
 main {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Aligns content towards the right */
-    padding-left: 100px; /* Push content to the right */
+    align-items: flex-start;
+    padding-left: 100px;
     padding-right: 50px;
 }
 
@@ -67,7 +67,7 @@ form {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
     margin-bottom: 20px;
 }
 
@@ -116,7 +116,8 @@ button:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
+    max-width: 700px;
+    width: 100%;
     margin-bottom: 20px;
 }
 
