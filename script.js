@@ -6,7 +6,9 @@ import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
-log.setLevel("info");
+log.setLevel("Application started");
+console.log("Database:", db);
+console.log("Firebase Firestore:", auth);
 
     //Sign-In
     const provider = new GoogleAuthProvider();
@@ -17,7 +19,7 @@ log.setLevel("info");
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential.accessToken;
             const user = result.user;
-            localStorage.setItem("email", JSON.stringify(user.email)); //User email in localStorage
+            localStorage.setItem("email", JSON.stringify(user.email));
             window.location = "dashboard.html";
         }).catch((error) => {
             const errorCode = error.code;
