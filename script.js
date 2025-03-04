@@ -1,5 +1,3 @@
-console.log("Script is running.");
-
 import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import log from "loglevel";
@@ -38,6 +36,7 @@ console.log("Firebase Firestore:", auth);
     //const email = JSON.parse(localStorage.getItem("email"));
     //Fetch email from localStorage
     const email = localStorage.getItem("email") ? JSON.parse(localStorage.getItem("email")) : null;
+    console.log("Email:", email);
 
     if (!email) {
         console.warn("No email found. Redirecting to login page...");
