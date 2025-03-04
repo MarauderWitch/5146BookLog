@@ -1,3 +1,5 @@
+console.log("🚀 Script is running!");
+
 import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
