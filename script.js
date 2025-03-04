@@ -3,7 +3,7 @@ console.log("Script is running.");
 import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 
     //Sign-In
     const provider = new GoogleAuthProvider();
@@ -36,22 +36,11 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
     }
 
     //Logout
-    const logoutButton = document.getElementById("logout");
-    if (logoutButton) {
-        logoutButton.addEventListener("click", () => {
-            auth.signOut().then(() => {
-                console.log("User signed out.");
-                localStorage.removeItem("email");
-                window.location.href = "index.html";
-            }).catch((error) => {
-                console.error("Logout error:", error);
-            });
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        console.log("✅ DOM is fully loaded! Running event listeners...");
-    });    
+    const signOutBttn = document.getElementById("logout");
+    signOutBttn.addEventListener("click", function(event) {
+        localStorage.removeItem("email");
+        window.location.href = "index.html";
+    });
 
     //Book List
     console.log("🔎 Checking for book-form:", document.getElementById("book-form"));
@@ -64,57 +53,115 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
 
         async function addBook(title, author, genre, rating) {
             try {
-                await addDoc(collection(db, "books"), { title, author, genre, rating });
-                console.log("Book added successfully.");
+                const user = auth.currentUser;
+                if (!user) {
+                    console.error("No user signed in. Cannot add book.");
+                    return;
+                }
+        
+                await addDoc(collection(db, "books"), {
+                    title,
+                    author,
+                    genre,
+                    rating,
+                    email: user.email, // ✅ Stores the book under the user's email
+                    timestamp: new Date(), // Optional: Allows sorting by time added
+                });
+        
+                console.log(`Book "${title}" added successfully by ${user.email}.`);
                 fetchBooks();
             } catch (error) {
                 console.error("Error adding book:", error);
             }
-        }
+        }                
 
         async function fetchBooks() {
             try {
                 console.log("Fetching books...");
-                const querySnapshot = await getDocs(collection(db, "books"));
-
-                if (querySnapshot.empty) {
-                    bookList.innerHTML = "<p>No books added yet.</p>";
-                    console.log("⚠ No books in database.");
+        
+                const user = auth.currentUser; // Get the currently signed-in user
+                if (!user) {
+                    console.error("No user is signed in. Cannot fetch books.");
+                    alert("You must be signed in to see your books.");
                     return;
                 }
-
+        
+                //Query Firestore to get only books belonging to the signed-in user
+                const q = query(collection(db, "books"), where("email", "==", user.email));
+                const querySnapshot = await getDocs(q);
+        
+                if (querySnapshot.empty) {
+                    bookList.innerHTML = "<p>No books added yet.</p>";
+                    console.log("No books in database for this user.");
+                    return;
+                }
+        
                 querySnapshot.forEach((doc) => {
                     const book = doc.data();
                     const bookId = doc.id;
                     console.log("Found book:", book);
-                    displayBook(book, bookId);
+                    displayBooks(book, bookId);
                 });
-
+        
                 console.log("Books successfully fetched.");
             } catch (error) {
                 console.error("Error fetching books:", error);
             }
         }
 
-        async function deleteBook(bookId) {
-            try {
-                await deleteDoc(doc(db, "books", bookId));
-                console.log("Book deleted successfully.");
-                fetchBooks();
-            } catch (error) {
-                console.error("Error deleting book:", error);
+        document.addEventListener("click", async (e) => {
+            if (e.target.classList.contains("delete-btn")) {
+                const bookId = e.target.getAttribute("data-id");
+                try {
+                    await deleteDoc(doc(db, "books", bookId));
+                    console.log(`Book with ID ${bookId} deleted.`);
+                    displayBooks(); //Re-fetch and update UI after deletion
+                } catch (error) {
+                    console.error("Error deleting book:", error);
+                }
             }
-        }
+        });        
 
-        function displayBook(book, bookId) {
-            console.log("Displaying book:", book);
-            const bookItem = document.createElement("li");
-            bookItem.innerHTML = `
-                <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
-                <button onclick="deleteBook('${bookId}')">Delete</button>
-            `;
-            bookList.appendChild(bookItem);
-        }
+        async function displayBooks() {
+            console.log("Fetching books...");
+            bookList.innerHTML = ""; // Clear the existing list before rendering
+        
+            try {
+                // Get only the books that belong to the signed-in user
+                const user = auth.currentUser;
+                if (!user) {
+                    console.log("No user signed in. Cannot fetch books.");
+                    return;
+                }
+        
+                const q = query(collection(db, "books"), where("email", "==", user.email));
+                const querySnapshot = await getDocs(q);
+        
+                if (querySnapshot.empty) {
+                    bookList.innerHTML = "<p>No books added yet.</p>";
+                    console.log("No books found in database.");
+                    return;
+                }
+        
+                querySnapshot.forEach((doc) => {
+                    const book = doc.data();
+                    const bookId = doc.id;
+        
+                    // Create the list item
+                    const bookItem = document.createElement("li");
+                    bookItem.id = bookId; // Assign unique ID
+                    bookItem.innerHTML = `
+                        <strong>${book.title}</strong> by ${book.author} <em>(${book.genre})</em> - Rating: ${book.rating}
+                        <button class="delete-btn" data-id="${bookId}">Delete</button>
+                    `;
+                    bookList.appendChild(bookItem);
+                });
+        
+                console.log("Books successfully displayed.");
+            } catch (error) {
+                console.error("Error fetching and displaying books:", error);
+            }
+        }        
 
         if (document.getElementById("book-form")) {
             console.log("Book form found. Initializing book logic...");
@@ -123,14 +170,19 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
             const bookList = document.getElementById("book-list");
         
             bookForm.addEventListener("submit", function (e) {
-                console.log("📌 Form submit event detected.");
+                console.log("Form submit event detected.");
                 e.preventDefault();
                 console.log("Book form submitted.");
         
-                const title = document.getElementById("title").value;
-                const author = document.getElementById("author").value;
-                const genre = document.getElementById("genre").value;
-                const rating = document.getElementById("rating").value;
+                const title = document.getElementById("title").value.trim();
+                const author = document.getElementById("author").value.trim();
+                const genre = document.getElementById("genre").value.trim();
+                const rating = document.getElementById("rating").value.trim();
+        
+                if (!title || !author || !genre || !rating) {
+                    console.error("All fields must be filled.");
+                    return;
+                }
         
                 console.log("Form values:", { title, author, genre, rating });
         
@@ -138,10 +190,10 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
                 bookForm.reset();
             });
         
-            fetchBooks();
+            displayBooks();
         } else {
             console.error("Book form not found.");
-        }
+        }        
     }
 
     //Chatbot Logic
