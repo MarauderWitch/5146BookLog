@@ -10,17 +10,18 @@ if (typeof firebase === "undefined") {
     const signInBttn = document.getElementById('signIn');
 
     function signIn() {
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                const user = result.user;
-                localStorage.setItem("email", user.email);
-                console.log(`User signed in: ${user.email}`);
-                window.location = "dashboard.html";
-            })
-            .catch((error) => {
-                console.error(`Sign-in error [${error.code}]: ${error.message}`);
-                alert(`Google Sign-In Error: ${error.message}`);
-            });
+        signInWithPopup(auth, provider).then((result) => {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            const user = result.user;
+            localStorage.setItem("email", JSON.stringify(user.email));
+            window.location = "tasks.html";
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            const email = error.customData.email;
+            const credential = GoogleAuthProvider.credentialFromError(error);
+        });
     }
 
     //Fix event listener to call signIn() correctly
