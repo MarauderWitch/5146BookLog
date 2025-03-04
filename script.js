@@ -7,7 +7,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM fully loaded. Initializing app...");
 
-    // 🔹 **Sign-In Button Logic**
+    //Sign-In
     const provider = new GoogleAuthProvider();
     const signInBttn = document.getElementById("signIn");
     
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
         signIn(auth, provider);
     });
 
-    // 🔹 **Logout Button Logic**
+    //Logout Button Logic
     const logoutButton = document.getElementById("logout");
     if (logoutButton) {
         logoutButton.addEventListener("click", () => {
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 🔹 **Book List Logic (Only on `dashboard.html`)**
+    //Book List
     if (document.getElementById("book-form")) {
         console.log("Initializing Book Logic...");
 
@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         async function addBook(title, author, genre, rating) {
             try {
+                console.log("Adding book:", { title, author, genre, rating });
                 await addDoc(collection(db, "books"), { title, author, genre, rating });
                 console.log("Book added successfully.");
                 fetchBooks();
@@ -60,6 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("Error adding book:", error);
             }
         }
+
+        bookForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const title = document.getElementById("title").value;
+            const author = document.getElementById("author").value;
+            const genre = document.getElementById("genre").value;
+            const rating = document.getElementById("rating").value;
+            addBook(title, author, genre, rating);
+            bookForm.reset();
+        });
 
         async function fetchBooks() {
             try {
@@ -104,16 +115,6 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             bookList.appendChild(bookItem);
         }
-
-        bookForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-            const title = document.getElementById("title").value;
-            const author = document.getElementById("author").value;
-            const genre = document.getElementById("genre").value;
-            const rating = document.getElementById("rating").value;
-            addBook(title, author, genre, rating);
-            bookForm.reset();
-        });
 
         fetchBooks();
     }
