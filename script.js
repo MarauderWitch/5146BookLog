@@ -42,6 +42,10 @@ import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
         });
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("✅ DOM is fully loaded! Running event listeners...");
+    });    
+
     //Book List
     console.log("🔎 Checking for book-form:", document.getElementById("book-form"));
 
