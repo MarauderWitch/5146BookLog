@@ -203,6 +203,10 @@ button:hover {
     font-size: 14px;
 }
 
+#chat-icon {
+    display: none;
+}
+
 #send-btn {
     background-color: #28a745;
     padding: 10px 15px;
@@ -237,6 +241,10 @@ footer {
         justify-content: center;
         align-items: center;
         cursor: pointer;
+        background: white;
+        border: 2px solid #007bff;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
     }
 
     #chatbot-container.expanded {
@@ -246,20 +254,21 @@ footer {
         padding: 15px;
     }
 
-    #chat-history {
+    #chat-history, #chat-input, #send-btn {
         display: none;
     }
 
-    #chatbot-container.expanded #chat-history {
+    #chatbot-container.expanded #chat-history,
+    #chatbot-container.expanded #chat-input,
+    #chatbot-container.expanded #send-btn {
         display: block;
-        height: 150px;
     }
 
     #chat-icon {
         font-size: 24px;
         display: block;
     }
-    
+
     #chatbot-container.expanded #chat-icon {
         display: none;
     }
