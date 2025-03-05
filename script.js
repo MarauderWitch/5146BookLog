@@ -240,6 +240,11 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             console.error("Book form not found.");
         }
+
+        document.getElementById("reset-filter").addEventListener("click", () => {
+            console.log("Resetting book list filter...");
+            displayBooks();
+        });        
     }
 
     //Chatbot Logic
@@ -247,12 +252,27 @@ document.addEventListener("DOMContentLoaded", function() {
     const aiButton = document.getElementById("send-btn");
     const chatHistory = document.getElementById("chat-history");
     const chatbotContainer = document.getElementById("chatbot-container");
+    const chatIcon = document.getElementById("chat-icon");
 
-    if (chatbotContainer) {
-        chatbotContainer.addEventListener("click", function () {
-            this.classList.toggle("expanded");
-        });
-    }
+    chatbotContainer.addEventListener("click", function (event) {
+        // Allow clicking on the icon to expand the chatbot
+        if (!chatbotContainer.classList.contains("expanded")) {
+            chatbotContainer.classList.add("expanded");
+            event.stopPropagation(); // Prevent closing immediately
+        }
+    });
+    
+    // ✅ Close chatbot when clicking outside of it
+    document.addEventListener("click", function (event) {
+        if (!chatbotContainer.contains(event.target) && chatbotContainer.classList.contains("expanded")) {
+            chatbotContainer.classList.remove("expanded");
+        }
+    });
+    
+    // ✅ Prevent clicks inside the chatbot from closing it
+    chatHistory.addEventListener("click", (event) => event.stopPropagation());
+    aiInput.addEventListener("click", (event) => event.stopPropagation());
+    aiButton.addEventListener("click", (event) => event.stopPropagation());
 
     if (aiInput && aiButton) {
         aiButton.addEventListener("click", async () => {
