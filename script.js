@@ -2,7 +2,7 @@ import { db, auth } from "/firebase.js";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 import log from "loglevel";
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { collection, getDocs, getDoc, addDoc, deleteDoc, doc, query, where } from "firebase/firestore";
+import { collection, getDocs, getDoc, addDoc, deleteDoc, updateDoc, doc, query, where } from "firebase/firestore";
 
 document.addEventListener("DOMContentLoaded", function() {
     log.setLevel("info");
@@ -62,28 +62,49 @@ document.addEventListener("DOMContentLoaded", function() {
         const bookList = document.getElementById("book-list");
 
         async function addBook(title, author, genre, rating) {
-            auth.onAuthStateChanged(async (user) => {  //Wait for Firebase Auth to detect the user
+            auth.onAuthStateChanged(async (user) => {
                 if (!user) {
-                    console.error("No user signed in. Cannot add book.");
+                    console.error("No user signed in. Cannot add/update book.");
                     return;
                 }
         
                 try {
-                    await addDoc(collection(db, "books"), {
-                        title,
-                        author,
-                        genre,
-                        rating,
-                        email: user.email
-                    });
+                    const submitButton = document.querySelector("#book-form button[type='submit']");
+                    const bookId = submitButton.getAttribute("data-editing-id");
         
-                    console.log(`Book "${title}" added successfully by ${user.email}.`);
-                    displayBooks(); //Call function to update UI after adding
+                    if (bookId) {
+                        //Update existing book
+                        await setDoc(doc(db, "books", bookId), {
+                            title,
+                            author,
+                            genre,
+                            rating,
+                            email: user.email
+                        });
+        
+                        console.log(`Book "${title}" updated successfully.`);
+                        submitButton.textContent = "Add Book"; //Reset button text
+                        submitButton.removeAttribute("data-editing-id"); //Remove editing ID
+                    } else {
+                        //Add new book
+                        await addDoc(collection(db, "books"), {
+                            title,
+                            author,
+                            genre,
+                            rating,
+                            email: user.email
+                        });
+        
+                        console.log(`Book "${title}" added successfully by ${user.email}.`);
+                    }
+        
+                    bookForm.reset();
+                    displayBooks(); //Refresh book list
                 } catch (error) {
-                    console.error("Error adding book:", error);
+                    console.error("Error adding/updating book:", error);
                 }
             });
-        }        
+        }                
 
         async function displayBooks() {
             console.log("Fetching books...");
@@ -119,7 +140,10 @@ document.addEventListener("DOMContentLoaded", function() {
                             by <span class="author-tag" data-author="${book.author}">${book.author}</span>
                             <em> (<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>) </em>
                             - Rating: ${book.rating}
-                            <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            <div class="book-actions">
+                                <button class="edit-btn" data-id="${bookId}">Edit</button>
+                                <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            </div>
                         `;
                         bookList.appendChild(bookItem);
                     });
@@ -130,6 +154,49 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }
+
+        async function updateBook(bookId, newTitle, newAuthor, newGenre, newRating) {
+            try {
+                const bookRef = doc(db, "books", bookId); // Reference the correct book document
+                await updateDoc(bookRef, {
+                    title: newTitle,
+                    author: newAuthor,
+                    genre: newGenre,
+                    rating: newRating
+                });
+        
+                console.log(`Book "${newTitle}" updated successfully.`);
+                displayBooks(); // Refresh book list after update
+            } catch (error) {
+                console.error("Error updating book:", error);
+            }
+        }
+
+        document.getElementById("update-book").addEventListener("click", function () {
+            const bookId = document.getElementById("update-book").getAttribute("data-id");
+        
+            if (!bookId) {
+                console.error("No book selected for updating.");
+                return;
+            }
+        
+            const newTitle = document.getElementById("title").value.trim();
+            const newAuthor = document.getElementById("author").value.trim();
+            const newGenre = document.getElementById("genre").value.trim();
+            const newRating = document.getElementById("rating").value.trim();
+        
+            if (!newTitle || !newAuthor || !newGenre || !newRating) {
+                console.error("All fields must be filled.");
+                return;
+            }
+        
+            updateBook(bookId, newTitle, newAuthor, newGenre, newRating);
+            document.getElementById("book-form").reset();
+        
+            // Reset form buttons
+            document.getElementById("update-book").style.display = "none";
+            document.getElementById("submit-book").style.display = "inline-block";
+        });        
 
         async function filterBooksBy(field, value) {
             console.log(`Filtering books where ${field} == ${value}`);
@@ -165,7 +232,10 @@ document.addEventListener("DOMContentLoaded", function() {
                             by <span class="author-tag" data-author="${book.author}">${book.author}</span>
                             <em> (<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>) </em>
                             - Rating: ${book.rating}
-                            <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            <div class="book-actions">
+                                <button class="edit-btn" data-id="${bookId}">Edit</button>
+                                <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            </div>
                         `;
                         bookList.appendChild(bookItem);
                     });
@@ -191,18 +261,31 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });        
 
-        document.addEventListener("click", async (e) => {
-            if (e.target.classList.contains("delete-btn")) {
+        document.addEventListener("click", async function (event) {
+            if (event.target.classList.contains("edit-btn")) {
+                const bookId = event.target.getAttribute("data-id");
+                const bookItem = event.target.closest("li");
+                
+                document.getElementById("title").value = bookItem.querySelector("strong").innerText;
+                document.getElementById("author").value = bookItem.querySelector(".author-tag").innerText;
+                document.getElementById("genre").value = bookItem.querySelector(".genre-tag").innerText;
+                document.getElementById("rating").value = bookItem.innerHTML.match(/Rating: (\d+)/)[1];
+        
+                document.getElementById("update-book").setAttribute("data-id", bookId);
+                document.getElementById("update-book").style.display = "inline-block";
+                document.getElementById("submit-book").style.display = "none";
+            }
+            if (event.target.classList.contains("delete-btn")) {
                 const bookId = e.target.getAttribute("data-id");
                 try {
                     await deleteDoc(doc(db, "books", bookId));
                     console.log(`Book with ID ${bookId} deleted.`);
-                    displayBooks(); //Call function to update UI after deleting
+                    displayBooks(); // Refresh list
                 } catch (error) {
                     console.error("Error deleting book:", error);
                 }
             }
-        });
+        });        
 
         if (document.getElementById("book-form")) {
             console.log("Book form found. Initializing book logic...");
