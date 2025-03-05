@@ -246,6 +246,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const aiInput = document.getElementById("chat-input");
     const aiButton = document.getElementById("send-btn");
     const chatHistory = document.getElementById("chat-history");
+    const chatbotContainer = document.getElementById("chatbot-container");
+
+    if (chatbotContainer) {
+        chatbotContainer.addEventListener("click", function () {
+            this.classList.toggle("expanded");
+        });
+    }
 
     if (aiInput && aiButton) {
         aiButton.addEventListener("click", async () => {

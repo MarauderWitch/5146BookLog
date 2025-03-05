@@ -14,9 +14,9 @@ body {
 main {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    padding-left: 30px;
-    padding-right: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
 }
 
 /* Header */
@@ -67,7 +67,8 @@ form {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 300px;
+    align-items: center;
     margin-bottom: 20px;
 }
 
@@ -80,7 +81,7 @@ label {
 
 input {
     width: 100%;
-    max-width: 375px;
+    max-width: 275px;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ced4da;
@@ -112,38 +113,31 @@ button:hover {
 }
 
 /* Add Book Section */
-#add-book {
+#add-book, #book-list-section {
     background: #ffffff;
-    padding: 20px;
+    padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 440px;
+    max-width: 340px;
     width: 100%;
-    margin-bottom: 20px;
-}
-
-/* Book List */
-#book-list-section {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
+    text-align: center;
 }
 
 #book-list {
     list-style: none;
     padding: 0;
+    width: 100%;
 }
 
 #book-list li {
     background: #e9ecef;
-    padding: 10px;
+    padding: 12px;
     margin: 8px 0;
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
 #book-list li strong {
@@ -159,6 +153,23 @@ button:hover {
 
 #book-list .delete-btn:hover {
     background-color: #c82333;
+}
+
+/* Clickable Tags for Author & Genre */
+.author-tag, .genre-tag {
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background-color: #e7f1ff;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.author-tag:hover, .genre-tag:hover {
+    background-color: #0056b3;
+    color: white;
+    text-decoration: none;
 }
 
 /* Chatbot */
@@ -211,4 +222,45 @@ footer {
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     font-size: 14px;
     color: #6c757d;
+}
+
+@media (max-width: 600px) {
+    #chatbot-container {
+        width: 60px;
+        height: 60px;
+        bottom: 10px;
+        right: 10px;
+        padding: 5px;
+        overflow: hidden;
+        transition: width 0.3s, height 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    #chatbot-container.expanded {
+        width: 90%;
+        max-width: 320px;
+        height: auto;
+        padding: 15px;
+    }
+
+    #chat-history {
+        display: none;
+    }
+
+    #chatbot-container.expanded #chat-history {
+        display: block;
+        height: 150px;
+    }
+
+    #chat-icon {
+        font-size: 24px;
+        display: block;
+    }
+    
+    #chatbot-container.expanded #chat-icon {
+        display: none;
+    }
 }
