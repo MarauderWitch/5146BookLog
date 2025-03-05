@@ -647,21 +647,39 @@ document.addEventListener("DOMContentLoaded", function() {
         async function addBook(title, author, genre, rating) {
             (0, _firebaseJs.auth).onAuthStateChanged(async (user)=>{
                 if (!user) {
-                    console.error("No user signed in. Cannot add book.");
+                    console.error("No user signed in. Cannot add/update book.");
                     return;
                 }
                 try {
-                    await (0, _firestore.addDoc)((0, _firestore.collection)((0, _firebaseJs.db), "books"), {
-                        title,
-                        author,
-                        genre,
-                        rating,
-                        email: user.email
-                    });
-                    console.log(`Book "${title}" added successfully by ${user.email}.`);
-                    displayBooks(); //Call function to update UI after adding
+                    const submitButton = document.querySelector("#book-form button[type='submit']");
+                    const bookId = submitButton.getAttribute("data-editing-id");
+                    if (bookId) {
+                        //Update existing book
+                        await setDoc((0, _firestore.doc)((0, _firebaseJs.db), "books", bookId), {
+                            title,
+                            author,
+                            genre,
+                            rating,
+                            email: user.email
+                        });
+                        console.log(`Book "${title}" updated successfully.`);
+                        submitButton.textContent = "Add Book"; //Reset button text
+                        submitButton.removeAttribute("data-editing-id"); //Remove editing ID
+                    } else {
+                        //Add new book
+                        await (0, _firestore.addDoc)((0, _firestore.collection)((0, _firebaseJs.db), "books"), {
+                            title,
+                            author,
+                            genre,
+                            rating,
+                            email: user.email
+                        });
+                        console.log(`Book "${title}" added successfully by ${user.email}.`);
+                    }
+                    bookForm.reset();
+                    displayBooks(); //Refresh book list
                 } catch (error) {
-                    console.error("Error adding book:", error);
+                    console.error("Error adding/updating book:", error);
                 }
             });
         }
@@ -693,7 +711,10 @@ document.addEventListener("DOMContentLoaded", function() {
                             by <span class="author-tag" data-author="${book.author}">${book.author}</span>
                             <em> (<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>) </em>
                             - Rating: ${book.rating}
-                            <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            <div class="book-actions">
+                                <button class="edit-btn" data-id="${bookId}">Edit</button>
+                                <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            </div>
                         `;
                         bookList.appendChild(bookItem);
                     });
@@ -703,6 +724,41 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }
+        async function updateBook(bookId, newTitle, newAuthor, newGenre, newRating) {
+            try {
+                const bookRef = (0, _firestore.doc)((0, _firebaseJs.db), "books", bookId); // Reference the correct book document
+                await (0, _firestore.updateDoc)(bookRef, {
+                    title: newTitle,
+                    author: newAuthor,
+                    genre: newGenre,
+                    rating: newRating
+                });
+                console.log(`Book "${newTitle}" updated successfully.`);
+                displayBooks(); // Refresh book list after update
+            } catch (error) {
+                console.error("Error updating book:", error);
+            }
+        }
+        document.getElementById("update-book").addEventListener("click", function() {
+            const bookId = document.getElementById("update-book").getAttribute("data-id");
+            if (!bookId) {
+                console.error("No book selected for updating.");
+                return;
+            }
+            const newTitle = document.getElementById("title").value.trim();
+            const newAuthor = document.getElementById("author").value.trim();
+            const newGenre = document.getElementById("genre").value.trim();
+            const newRating = document.getElementById("rating").value.trim();
+            if (!newTitle || !newAuthor || !newGenre || !newRating) {
+                console.error("All fields must be filled.");
+                return;
+            }
+            updateBook(bookId, newTitle, newAuthor, newGenre, newRating);
+            document.getElementById("book-form").reset();
+            // Reset form buttons
+            document.getElementById("update-book").style.display = "none";
+            document.getElementById("submit-book").style.display = "inline-block";
+        });
         async function filterBooksBy(field, value) {
             console.log(`Filtering books where ${field} == ${value}`);
             (0, _firebaseJs.auth).onAuthStateChanged(async (user)=>{
@@ -731,7 +787,10 @@ document.addEventListener("DOMContentLoaded", function() {
                             by <span class="author-tag" data-author="${book.author}">${book.author}</span>
                             <em> (<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>) </em>
                             - Rating: ${book.rating}
-                            <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            <div class="book-actions">
+                                <button class="edit-btn" data-id="${bookId}">Edit</button>
+                                <button class="delete-btn" data-id="${bookId}">Delete</button>
+                            </div>
                         `;
                         bookList.appendChild(bookItem);
                     });
@@ -741,25 +800,36 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         }
-        document.addEventListener("click", async (e)=>{
-            if (e.target.classList.contains("author-tag")) {
-                const selectedAuthor = e.target.getAttribute("data-author");
+        document.addEventListener("click", async (e1)=>{
+            if (e1.target.classList.contains("author-tag")) {
+                const selectedAuthor = e1.target.getAttribute("data-author");
                 console.log(`Filtering books by author: ${selectedAuthor}`);
                 filterBooksBy("author", selectedAuthor);
             }
-            if (e.target.classList.contains("genre-tag")) {
-                const selectedGenre = e.target.getAttribute("data-genre");
+            if (e1.target.classList.contains("genre-tag")) {
+                const selectedGenre = e1.target.getAttribute("data-genre");
                 console.log(`Filtering books by genre: ${selectedGenre}`);
                 filterBooksBy("genre", selectedGenre);
             }
         });
-        document.addEventListener("click", async (e)=>{
-            if (e.target.classList.contains("delete-btn")) {
+        document.addEventListener("click", async function(event) {
+            if (event.target.classList.contains("edit-btn")) {
+                const bookId = event.target.getAttribute("data-id");
+                const bookItem = event.target.closest("li");
+                document.getElementById("title").value = bookItem.querySelector("strong").innerText;
+                document.getElementById("author").value = bookItem.querySelector(".author-tag").innerText;
+                document.getElementById("genre").value = bookItem.querySelector(".genre-tag").innerText;
+                document.getElementById("rating").value = bookItem.innerHTML.match(/Rating: (\d+)/)[1];
+                document.getElementById("update-book").setAttribute("data-id", bookId);
+                document.getElementById("update-book").style.display = "inline-block";
+                document.getElementById("submit-book").style.display = "none";
+            }
+            if (event.target.classList.contains("delete-btn")) {
                 const bookId = e.target.getAttribute("data-id");
                 try {
                     await (0, _firestore.deleteDoc)((0, _firestore.doc)((0, _firebaseJs.db), "books", bookId));
                     console.log(`Book with ID ${bookId} deleted.`);
-                    displayBooks(); //Call function to update UI after deleting
+                    displayBooks(); // Refresh list
                 } catch (error) {
                     console.error("Error deleting book:", error);
                 }
@@ -769,9 +839,9 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log("Book form found. Initializing book logic...");
             const bookForm = document.getElementById("book-form");
             const bookList = document.getElementById("book-list");
-            bookForm.addEventListener("submit", function(e) {
+            bookForm.addEventListener("submit", function(e1) {
                 console.log("Form submit event detected.");
-                e.preventDefault();
+                e1.preventDefault();
                 console.log("Book form submitted.");
                 const title = document.getElementById("title").value.trim();
                 const author = document.getElementById("author").value.trim();
