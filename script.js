@@ -41,13 +41,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const email = localStorage.getItem("email") ? JSON.parse(localStorage.getItem("email")) : null;
     console.log("Email:", email);
 
-    if (!email) {
-        console.warn("No email found. Redirecting to login page...");
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 1000);
-    }
-
     //Logout
     const signOutBttn = document.getElementById("logout");
     if (signOutBttn) {
@@ -119,11 +112,12 @@ document.addEventListener("DOMContentLoaded", function() {
         
                         // Create the list item
                         const bookItem = document.createElement("li");
+                        bookItem.tabIndex = 0;
                         bookItem.id = bookId;
                         bookItem.innerHTML = `
-                            <strong>${book.title}</strong>
+                            <strong>${book.title} </strong>
                             by <span class="author-tag" data-author="${book.author}">${book.author}</span>
-                            <em>(<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>)</em>
+                            <em> (<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>) </em>
                             - Rating: ${book.rating}
                             <button class="delete-btn" data-id="${bookId}">Delete</button>
                         `;
@@ -164,11 +158,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
                         // Create the filtered book list
                         const bookItem = document.createElement("li");
+                        bookItem.tabIndex = 0;
                         bookItem.id = bookId;
                         bookItem.innerHTML = `
-                            <strong>${book.title}</strong>
+                            <strong>${book.title} </strong>
                             by <span class="author-tag" data-author="${book.author}">${book.author}</span>
-                            <em>(<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>)</em>
+                            <em> (<span class="genre-tag" data-genre="${book.genre}">${book.genre}</span>) </em>
                             - Rating: ${book.rating}
                             <button class="delete-btn" data-id="${bookId}">Delete</button>
                         `;
@@ -262,14 +257,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
     
-    // ✅ Close chatbot when clicking outside of it
+    //Close chatbot when clicking outside of it
     document.addEventListener("click", function (event) {
         if (!chatbotContainer.contains(event.target) && chatbotContainer.classList.contains("expanded")) {
             chatbotContainer.classList.remove("expanded");
         }
     });
     
-    // ✅ Prevent clicks inside the chatbot from closing it
+    //Prevent clicks inside the chatbot from closing it
     chatHistory.addEventListener("click", (event) => event.stopPropagation());
     aiInput.addEventListener("click", (event) => event.stopPropagation());
     aiButton.addEventListener("click", (event) => event.stopPropagation());
@@ -322,6 +317,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         if (request.startsWith("delete")) {
             appendMessage("To delete a book, click the 'Delete' button next to it.");
+            return true;
+        }
+        if (request.startsWith("sort")) {
+            appendMessage("To sort through books, click either on the author's name or on the book's genre.");
             return true;
         }
         appendMessage("I'm sorry, I didn't understand that command.");
