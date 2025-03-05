@@ -126,7 +126,7 @@ button:hover {
 #book-list {
     list-style: none;
     padding: 0;
-    width: 100%;
+    width: 90%;
 }
 
 #book-list li {
@@ -137,7 +137,7 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    width: 90%;
 }
 
 #book-list li strong {
@@ -265,8 +265,8 @@ footer {
     } */
 
     #chatbot-container.expanded #chat-history {
-        width: 350px;
-        height: 250px;
+        width: 90%;
+        height: 75%;
         overflow-y: auto;
         border-bottom: 2px solid #007bff;
         margin-bottom: 10px;
